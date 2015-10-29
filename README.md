@@ -1,6 +1,8 @@
 # SmartVISU Database Plot Widget
 A SmartVISU widget for database plots with highcharts.
 
+![alt text](http://i.imgur.com/RFT4CrR.png "SmartVISU Database Lineplots")
+
 This widget makes it possible to add fancy zoomable live updated line plots from the FHEM DbLog module (or any other mysql or sqlite log table) to the SmartVISU Frontend. 
 
 ## Install
@@ -62,6 +64,7 @@ If you don't like the style how the legend is rendered just change it to your ne
 
 ## Examples
 ### Example 1: Simple lineplot from one reading value
+![alt text](http://i.imgur.com/vVCpmS5.png "Simple lineplot from one reading value")
 ```
 {% set plotOptions = 
  [
@@ -71,15 +74,16 @@ If you don't like the style how the legend is rendered just change it to your ne
 		'reading': 'DeviceReading',
 		'config': {
 			'name': 'Temperature',
-			'type': 'line'
+			'type': 'spline'
 		}
 	}
 ]%}
-{{ dbPlot.linePlot('HeatingPlot', 'Temperatures', '', '', 'Temperaturen', '°C', plotOptions, '', '', 300) }}
+{{ dbPlot.linePlot('HeatingPlot', 'Temperatures', '', '', 'Temperatures', '°C', plotOptions, '', '', 300) }}
 ```
 This will render a lineplot from the reading `DeviceReading` of `MyHeatingDevice`. The defined `update_trigger_gad` is a GAD used to trigger the update of the plot when the reading changes. The config array holds information on the name which will be used in the legend and the type of the plot. (See below for further available options)
 
 ### Example 2: Lineplot with areaplot from two reading values
+![alt text](http://i.imgur.com/twYEUZk.png "Lineplot with areaplot from two reading values")
 ```
 {% set plotOptions = 
  [
@@ -106,6 +110,8 @@ This will render a lineplot from the reading `DeviceReading` of `MyHeatingDevice
 This will render a chart with an area plot for the reading `DesiredTemperature` and a line plot for `Temperature`.
 
 ### Example 3: Lineplot from two readings with multiple y-Axis
+![alt text](http://i.imgur.com/0lzjG1F.png "Lineplot with areaplot from two reading values")
+
 ```
 {% set plotOptions = [
 	{
