@@ -1,6 +1,9 @@
 # SmartVISU Database Plot Widget
 A SmartVISU widget for database plots with highcharts.
 
+(C) Tobias Geier 2015
+Stand: v0.1
+
 ![alt text](http://i.imgur.com/RFT4CrR.png "SmartVISU Database Lineplots")
 
 This widget makes it possible to add fancy zoomable live updated line plots from the FHEM DbLog module (or any other mysql or sqlite log table) to the SmartVISU Frontend. 
