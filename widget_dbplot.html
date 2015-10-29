@@ -1,0 +1,44 @@
+/**
+* 
+* SmartVISU widget for database plots with highcharts
+* (c) Tobias Geier 2015
+*
+* Version: 0.1
+* License: GNU General Public License v2.0
+*
+* Manual: 
+*
+* @param id unique id for this widget
+* @param title a title for the plot
+* @param timeRange timerange that will be displayed in the chart | default: 60
+* @param maxRows max row count that will be selected from the database | default: 300
+* @param textYAxis text that is displayed for the y axis, won't be used if yAxisOptions are defined
+* @param unitYAxis unit for the y axis, won't be used if yAxisOptions are defined
+* @param plotOptions multidimensional array with options for plot series | See manual for detailed description and examples
+* @param yAxisOptions multidimensional array with options for plot y axis | See manual for detailed description and examples
+* @param legendOptions multidimensional array with options for plot legend | See manual for detailed description and examples
+* @param height pixel height of the plot | default: 300
+*
+*/
+
+{% macro linePlot(id, title, timeRange, maxRows, textYAxis, unitYAxis, plotOptions, yAxisOptions, legendOptions, height) %}
+<script>
+// Trigger Init event to draw the chart
+$('#{{ uid(page) }}').on('pagecreate', function (event, ui) {
+			$('#{{ uid(page, id) }}').trigger('init');
+});
+</script>
+<div id="{{ uid(page, id) }}" 
+data-widget="dbPlot.linePlot" 
+data-title="{{ title }}"
+data-type="line"
+data-range="{{ timeRange|default(60) }}"
+data-text-y-axis="{{ textYAxis }}"
+data-unit-y-axis="{{ unitYAxis }}"
+data-max-rows="{{ maxRows|default(300) }}"
+data-item="{% for key,val in plotOptions %}{{ val.update_trigger_gad }}{% if (loop.last == false) %},{% endif %}{% endfor %}"
+data-query="{{ plotOptions|json_encode() }}"
+data-y-axis-options="{{ yAxisOptions|json_encode() }}"
+data-legend-options="{{ legendOptions|json_encode() }}"
+style="height:{{ height|default(250) }}px;"></div>
+{% endmacro %}
