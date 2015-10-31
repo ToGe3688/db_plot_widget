@@ -70,8 +70,7 @@ $requestedDeviceReadings = json_decode($query);
 
 // Basic validation for request query
 if (!is_array($requestedDeviceReadings) && count($requestedDeviceReadings) == 0) {
-
-    exit;
+    returnError("plotOptions is no array, wrong formed or empty");
 }
 
 // Create new PDO Object for DB Connection
