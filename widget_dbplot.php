@@ -174,6 +174,12 @@ function dbQuery($device, $reading, $timeRange, $db) {
     } catch (PDOException $pe) {
         returnError($pe->getMessage());
     }
+    
+    // If there are zero rows, return error with sql query
+    if ($stmt->rowCount() == 0) {
+        returnError('No data returned for query:' . $dbQuery);
+    }
+    
     return $stmt;
 }
 
