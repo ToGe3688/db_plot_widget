@@ -51,8 +51,13 @@ header("content-type: application/json");
 
 // Check if required POST values are set
 if (!isset($_POST['query']) && !isset($_POST['range'])) {
-	
-	exit;
+        // If one of POST values is missing return Error
+	if (!isset($_POST['query']) || $_POST['query'] == "") {
+          returnError("Missing or empty query value in POST request");  
+        }
+	if (!isset($_POST['range']) || $_POST['range'] == "") {
+          returnError("Missing or empty range value in POST request");  
+        }
 	
 } else {
 	
