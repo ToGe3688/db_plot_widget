@@ -28,6 +28,7 @@ $('#{{ uid(page) }}').on('pagecreate', function (event, ui) {
 			$('#{{ uid(page, id) }}').trigger('init');
 });
 </script>
+<div id="{{ uid(page, id) }}-error-container" style="display:none;"></div>
 <div id="{{ uid(page, id) }}" 
 data-widget="dbPlot.linePlot" 
 data-title="{{ title }}"
