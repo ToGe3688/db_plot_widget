@@ -79,7 +79,7 @@ if ($dbType == 'sqlite') {
 } elseif ($dbType == 'mysql') {
     $db = new PDO('mysql:host=' . $host . ';' . $database, $mysql_username, $mysql_password);
 }
-$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
 
 // Get requested series for the plot
 foreach ($requestedDeviceReadings as $i => $deviceReading) {
@@ -140,7 +140,9 @@ function dbQuery($device, $reading, $timeRange, $db) {
     global $readingColumn;
     global $deviceColumn;
     global $logTable;
-
+    
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
     $timeRange = mktime() - ($timeRange * 60);
     $timeRange = date("Y-m-d H:i:s", $timeRange);
 
