@@ -55,8 +55,8 @@ if (!isset($_POST['query']) && !isset($_POST['range'])) {
     if (!isset($_POST['query']) || $_POST['query'] == "") {
         returnError("Missing or empty query value in POST request");
     }
-    if (!isset($_POST['range']) || $_POST['range'] == "") {
-        returnError("Missing or empty range value in POST request");
+    if (!isset($_POST['range']) || $_POST['range'] == "" || !is_numeric($_POST['range'])) {
+        returnError("Missing, wrong or empty range value in POST request");
     }
 } else {
 
@@ -105,7 +105,7 @@ foreach ($requestedDeviceReadings as $i => $deviceReading) {
             array_push($plotArray, $item);
         }
     }
-
+    
     // Fill return array with Options for plot
     foreach ($deviceReading->config as $key => $value) {
         $returnArray[$i][$key] = $value;
@@ -152,36 +152,44 @@ function dbQuery($device, $reading, $timeRange, $db) {
         // Select only the last entry to get the update data for the plot
         $maxCount = 1;
         $dbQuery = 'SELECT ' . $timestampColumn . ', ' . $valueColumn . ', ' . $unitColumn . ' FROM ' . $logTable . ' WHERE ' . $deviceColumn . '=:device AND ' . $readingColumn . '=:reading ORDER BY ' . $timestampColumn . ' DESC LIMIT 0,:count';
+        $countQuery = 'SELECT count(*) FROM ' . $logTable . ' WHERE ' . $deviceColumn . '=:device AND ' . $readingColumn . '=:reading ORDER BY ' . $timestampColumn . ' DESC LIMIT 0,:count';
     } else {
 
         // Check if max_entry_count var is set in POST request, defaults to 300
         $maxCount = (isset($_POST['maxRows'])) ? $_POST['maxRows'] : 300;
         $dbQuery = 'SELECT ' . $timestampColumn . ', ' . $valueColumn . ', ' . $unitColumn . ' FROM ' . $logTable . ' WHERE ' . $deviceColumn . '=:device AND ' . $readingColumn . '=:reading AND ' . $timestampColumn . ' > :timeRange ORDER BY ' . $timestampColumn . ' DESC LIMIT 0,:count';
+        $countQuery = 'SELECT count(*) FROM ' . $logTable . ' WHERE ' . $deviceColumn . '=:device AND ' . $readingColumn . '=:reading AND ' . $timestampColumn . ' > :timeRange ORDER BY ' . $timestampColumn . ' DESC LIMIT 0,:count';
+    }
+    
+    // Check for number of rows returned, if there are zero rows, return error with sql query
+    $rowCountQuery = executeDbQuery($db, $countQuery, $device, $reading, $timeRange, $maxCount);
+    if ($rowCountQuery->fetchColumn()  === 0) {
+        returnError('Zero rows returned for query: ' . $dbQuery);
     }
 
-    // Try to execute sql query or return error
+    // Execute query and return fetched rows
+    $fetchedRows = executeDbQuery($db, $dbQuery, $device, $reading, $timeRange, $maxCount);
+    return $fetchedRows;
+}
+
+// Execute DB query 
+function executeDbQuery($db, $query, $device, $reading, $timeRange, $maxCount) {
+    
     try {
-        $stmt = $db->prepare($dbQuery);
+        $stmt = $db->prepare($query);
         $stmt->bindValue(':device', $device, PDO::PARAM_STR);
         $stmt->bindValue(':reading', $reading, PDO::PARAM_STR);
 
         // Check if request is initial request or update
         if (!isset($_POST['update'])) {
-
             $stmt->bindValue(':timeRange', $timeRange);
         }
 
         $stmt->bindValue(':count', $maxCount);
         $stmt->execute();
     } catch (PDOException $pe) {
-        returnError($pe->getMessage());
-    }
-    
-    // If there are zero rows, return error with sql query
-    if ($stmt->rowCount() == 0) {
-        returnError('No data returned for query:' . $dbQuery);
-    }
-    
+        returnError($pe->getMessage(). ' for query: ' . $query);
+    }   
     return $stmt;
 }
 
