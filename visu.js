@@ -15,6 +15,7 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
 
         // Set unit for y Axis
         var unit = $(this).attr('data-unit-y-axis');
+        var containerId = $(this).attr('id');
 
         // Check if y Axis Options are set. If not use default setting with values from widget data fields
         var yAxisOptions = JSON.parse($(this).attr('data-y-axis-options'));
@@ -96,6 +97,8 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
                 new Highcharts.Chart(options);
             } else {
                 console.log(data.error);
+                $('#' + containerId ).hide();
+                $('#' + containerId + '-error-container').show().html('<h3>dbPlot Error (Initial)</h3>' + data.error);
             }
         });
             
@@ -105,6 +108,7 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
 
         // The chart which will be updated
         var chart = $('#' + this.id).highcharts();
+        var containerId = $(this).attr('id');
 
         // Get Query for POST-Request
         var postData = {
@@ -123,6 +127,8 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
                 chart.redraw();
             } else {
                 console.log(data.error);
+                $('#' + containerId ).hide();
+                $('#' + containerId + '-error-container').show().html('<h3>dbPlot Error (Update)</h3>' + data.error);
             }
         });
 
