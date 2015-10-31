@@ -161,22 +161,32 @@ function dbQuery($device, $reading, $timeRange, $db) {
 		$maxCount = (isset($_POST['maxRows'])) ? $_POST['maxRows'] : 300;
 		$dbQuery = 'SELECT '.$timestampColumn.', '.$valueColumn.', '.$unitColumn.' FROM '.$logTable.' WHERE '.$deviceColumn.'=:device AND '.$readingColumn.'=:reading AND '.$timestampColumn.' > :timeRange ORDER BY '.$timestampColumn.' DESC LIMIT 0,:count';
 	}
-	
-	$stmt = $db->prepare($dbQuery);
-	$stmt->bindValue(':device', $device, PDO::PARAM_STR);
-	$stmt->bindValue(':reading', $reading, PDO::PARAM_STR);
-	
-	// Check if request is initial request or update
-	if (!isset($_POST['update'])) {
-		
-		$stmt->bindValue(':timeRange', $timeRange);
-		
-	}
+	try {
+            $stmt = $db->prepare($dbQuery);
+            $stmt->bindValue(':device', $device, PDO::PARAM_STR);
+            $stmt->bindValue(':reading', $reading, PDO::PARAM_STR);
 
-	$stmt->bindValue(':count', $maxCount);
-	$stmt->execute();
+            // Check if request is initial request or update
+            if (!isset($_POST['update'])) {
+
+                    $stmt->bindValue(':timeRange', $timeRange);
+
+            }
+
+            $stmt->bindValue(':count', $maxCount);
+            $stmt->execute();
+        } catch(PDOException $pe) {
+            returnError($pe->getMessage());
+        }
 	return $stmt;
 	
+}
+
+// Return script errors as JSON Data to display them in SmartVISU
+function returnError($error) {
+    $errorReturn = array('error' => $error);
+    echo json_encode($errorReturn); 
+    exit;
 }
 
 
