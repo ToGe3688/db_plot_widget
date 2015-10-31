@@ -75,10 +75,8 @@ if (!is_array($requestedDeviceReadings) && count($requestedDeviceReadings) == 0)
 
 // Create new PDO Object for DB Connection
 if ($dbType == 'sqlite') {
-
     $db = new PDO('sqlite:' . $dbPath);
 } elseif ($dbType == 'mysql') {
-
     $db = new PDO('mysql:host=' . $host . ';' . $database, $mysql_username, $mysql_password);
 }
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
