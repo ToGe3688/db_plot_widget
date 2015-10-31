@@ -90,12 +90,15 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
         };
 
         // Make POST-Request to get the data series for the plot
-        $.post("widgets/widget_dbplot.php", postData)
-                .done(function (data) {
-                    options.series = data;
-                    var chart = new Highcharts.Chart(options);
-
-                });
+        $.post("widgets/widget_dbplot.php", postData).done(function (data) {
+            if (!data.error) {
+                options.series = data;
+                new Highcharts.Chart(options);
+            } else {
+                console.log(data.error);
+            }
+        });
+            
     },
     // Update event is called when a GAD changes
     'update': function (event, response) {
@@ -112,11 +115,15 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
 
         // Make POST-Request and update the Plot
         $.post("widgets/widget_dbplot.php", postData).done(function (data) {
-            for (i = 0; i < data.length; i++) {
-                chart.series[i].addPoint(data[i].data[0], false);
+            if (!data.error) {
+                for (i = 0; i < data.length; i++) {
+                    chart.series[i].addPoint(data[i].data[0], false);
+                }
+                // Redraw chart
+                chart.redraw();
+            } else {
+                console.log(data.error);
             }
-            // Redraw chart
-            chart.redraw();
         });
 
         // Fix for display problems with too wide Chart container
