@@ -2,7 +2,7 @@
 A SmartVISU widget for database plots with highcharts.
 
 (C) Tobias Geier 2015
-Stand: v0.1
+Stand: v0.2
 
 ![alt text](http://i.imgur.com/RFT4CrR.png "SmartVISU Database Lineplots")
 
