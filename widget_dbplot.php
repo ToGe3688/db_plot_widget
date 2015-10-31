@@ -86,8 +86,9 @@ foreach ($requestedDeviceReadings as $i => $deviceReading) {
     $plotArray = array();
 
     // Execute DB Query for device reading
-    $stmt = dbQuery($deviceReading->device, $deviceReading->reading, $range, $db);
-
+    $resultArray = dbQuery($deviceReading->device, $deviceReading->reading, $range, $db);
+    $stmt = $resultArray[0];
+    $numRowCount = $resultArray[1];
 
     // Loop through fetched data from db and push values to plot array
     for ($a = 0; $row = $stmt->fetch(PDO::FETCH_ASSOC); $a++) {
@@ -98,7 +99,7 @@ foreach ($requestedDeviceReadings as $i => $deviceReading) {
         array_push($plotArray, $item);
 
         // Add a point with current timestamp and the last reading value so we don't get a gap in the plot
-        if ($a == $stmt->rowCount()) {
+        if ($a == $numRowCount) {
             $item = array($timestamp, floatval($row['VALUE']));
             array_push($plotArray, $item);
         }
@@ -161,11 +162,12 @@ function dbQuery($device, $reading, $timeRange, $db) {
     
     // Check for number of rows returned, if there are zero rows, return error with sql query
     $rowCountQuery = executeDbQuery($db, $countQuery, $device, $reading, $timeRange, $maxCount);
-    if ($rowCountQuery->fetchColumn()  === 0) returnError('Zero rows returned for query: ' . $dbQuery);
+    $numRowCount = $rowCountQuery->fetchColumn();
+    if ($numRowCount  === 0) returnError('Zero rows returned for query: ' . $dbQuery);
 
     // Execute query and return fetched rows
     $fetchedRows = executeDbQuery($db, $dbQuery, $device, $reading, $timeRange, $maxCount);
-    return $fetchedRows;
+    return array($fetchedRows, $numRowCount);
 }
 
 // Execute DB query 
