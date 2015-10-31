@@ -163,7 +163,7 @@ function dbQuery($device, $reading, $timeRange, $db) {
     // Check for number of rows returned, if there are zero rows, return error with sql query
     $rowCountQuery = executeDbQuery($db, $countQuery, $device, $reading, $timeRange, $maxCount);
     $numRowCount = $rowCountQuery->fetchColumn();
-    if ($numRowCount  == 0) returnError('Zero rows returned for query: ' . $dbQuery);
+    if ($numRowCount  == 0) returnError('Zero rows returned for Device: ' . $device . ' with Reading: '. $reading);
 
     // Execute query and return fetched rows
     $fetchedRows = executeDbQuery($db, $dbQuery, $device, $reading, $timeRange, $maxCount);
@@ -184,14 +184,14 @@ function executeDbQuery($db, $query, $device, $reading, $timeRange, $maxCount) {
         $stmt->bindValue(':count', $maxCount);
         $stmt->execute();
     } catch (PDOException $pe) {
-        returnError($pe->getMessage(). ' for query: ' . $query);
+        returnError($pe->getMessage());
     }   
     return $stmt;
 }
 
 // Return script errors as JSON Data to display them in SmartVISU
 function returnError($error) {
-    $errorReturn = array('error' => $error);
+    $errorReturn = array('error' => '[dbPlot.widget]: ' . $error);
     echo json_encode($errorReturn);
     exit;
 }
