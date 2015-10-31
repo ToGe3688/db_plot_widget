@@ -161,6 +161,8 @@ function dbQuery($device, $reading, $timeRange, $db) {
 		$maxCount = (isset($_POST['maxRows'])) ? $_POST['maxRows'] : 300;
 		$dbQuery = 'SELECT '.$timestampColumn.', '.$valueColumn.', '.$unitColumn.' FROM '.$logTable.' WHERE '.$deviceColumn.'=:device AND '.$readingColumn.'=:reading AND '.$timestampColumn.' > :timeRange ORDER BY '.$timestampColumn.' DESC LIMIT 0,:count';
 	}
+        
+        // Try to execute sql query or return error
 	try {
             $stmt = $db->prepare($dbQuery);
             $stmt->bindValue(':device', $device, PDO::PARAM_STR);
