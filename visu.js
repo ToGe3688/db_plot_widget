@@ -19,7 +19,7 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
 			
 		// Check if y Axis Options are set. If not use default setting with values from widget data fields
 		var yAxisOptions = JSON.parse($(this).attr('data-y-axis-options'));
-		if (yAxisOptions != '') {
+		if (yAxisOptions !== '') {
 			// Set custom yAxisData
 			var yAxisData = yAxisOptions;
 		} else {
@@ -36,7 +36,7 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
 		
 		// Check if y Axis Options are set. If not use default setting with values from widget data fields
 		var legendOptions = JSON.parse($(this).attr('data-legend-options'));
-		if (legendOptions != '') {
+		if (legendOptions !== '') {
 			// Set custom legendOptions
 			var legendData = legendOptions;
 		} else {
@@ -72,7 +72,7 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
 			// Tooltip for SmartVISU Style
 			tooltip: {
 				formatter: function () {
-					if (this.series.options.unit != null) {
+					if (this.series.options.unit !== null) {
 						// If unit is set in the series data use this
 						return this.series.name + ' <b>' + this.y + ' ' + this.series.options.unit +'</b>';
 					} else {
@@ -88,7 +88,7 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
 			query: $(this).attr('data-query'),
 			maxRows: $(this).attr('data-max-rows'),
 			range: $(this).attr('data-range')
-		}
+		};
 		
 		// Make POST-Request to get the data series for the plot
 		$.post( "widgets/widget_dbplot.php", postData)
@@ -110,7 +110,7 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
 			query: $(this).attr('data-query'),
 			range: $(this).attr('data-range'),
 			update: true
-		}
+		};
 		
 		// Make POST-Request and update the Plot
 		$.post( "widgets/widget_dbplot.php", postData).done(function( data ) {
