@@ -69,9 +69,7 @@ if (!isset($_POST['query']) && !isset($_POST['range'])) {
 $requestedDeviceReadings = json_decode($query);
 
 // Basic validation for request query
-if (!is_array($requestedDeviceReadings) && count($requestedDeviceReadings) == 0) {
-    returnError("plotOptions is no array, wrong formed or empty");
-}
+if (!is_array($requestedDeviceReadings) && count($requestedDeviceReadings) == 0) returnError("plotOptions is no array, wrong formed or empty");
 
 // Create new PDO Object for DB Connection
 if ($dbType == 'sqlite') {
@@ -163,9 +161,7 @@ function dbQuery($device, $reading, $timeRange, $db) {
     
     // Check for number of rows returned, if there are zero rows, return error with sql query
     $rowCountQuery = executeDbQuery($db, $countQuery, $device, $reading, $timeRange, $maxCount);
-    if ($rowCountQuery->fetchColumn()  === 0) {
-        returnError('Zero rows returned for query: ' . $dbQuery);
-    }
+    if ($rowCountQuery->fetchColumn()  === 0) returnError('Zero rows returned for query: ' . $dbQuery);
 
     // Execute query and return fetched rows
     $fetchedRows = executeDbQuery($db, $dbQuery, $device, $reading, $timeRange, $maxCount);
@@ -181,9 +177,7 @@ function executeDbQuery($db, $query, $device, $reading, $timeRange, $maxCount) {
         $stmt->bindValue(':reading', $reading, PDO::PARAM_STR);
 
         // Check if request is initial request or update
-        if (!isset($_POST['update'])) {
-            $stmt->bindValue(':timeRange', $timeRange);
-        }
+        if (!isset($_POST['update'])) $stmt->bindValue(':timeRange', $timeRange);
 
         $stmt->bindValue(':count', $maxCount);
         $stmt->execute();
