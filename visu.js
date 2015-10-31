@@ -3,7 +3,7 @@
 // SmartVISU widget for database plots with highcharts
 // (c) Tobias Geier 2015
 // 
-// Version: 0.1
+// Version: 0.2
 // License: GNU General Public License v2.0
 // 
 // Manual: 
