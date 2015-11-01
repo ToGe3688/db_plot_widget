@@ -87,7 +87,8 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
         var postData = {
             query: $(this).attr('data-query'),
             maxRows: $(this).attr('data-max-rows'),
-            range: $(this).attr('data-range')
+            timeRangeStart: Math.round((Date.now()/1000)-($(this).attr('data-range')*60)),
+            timeRangeEnd: Math.round(Date.now()/1000)
         };
 
         // Make POST-Request to get the data series for the plot
@@ -113,9 +114,8 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
         // Get Query for POST-Request
         var postData = {
             query: $(this).attr('data-query'),
-            range: $(this).attr('data-range'),
-            lastUpdate: $(this).attr('data-last-update'),
-            update: true
+            timeRangeStart: Math.round($(this).attr('data-last-update')/1000),
+            timeRangeEnd: Math.round(Date.now()/1000)
         };
 
         // Make POST-Request and update the Plot
