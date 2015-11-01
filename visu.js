@@ -122,8 +122,14 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
         $.post("widgets/widget_dbplot.php", postData).done(function (data) {
             if (!data.error) {
                 for (i = 0; i < data.length; i++) {
-                    chart.series[i].addPoint(data[i].data[0], false);
+                    if (data[i].data.length !== 0) {
+                        for (a = 0; a < data[i].data.length; a++) {
+                            chart.series[i].addPoint(data[i].data[a], true);
+                        }
+                        $('#' + containerId ).attr('data-last-update', Date.now()); 
+                    }
                 }
+                
                 // Redraw chart
                 chart.redraw();
             } else {
@@ -133,7 +139,7 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
             }
         });
         
-        $(this).attr('data-last-update', Date.now()); 
+        
         // Fix for display problems with too wide Chart container
         $(window).resize();
     }
