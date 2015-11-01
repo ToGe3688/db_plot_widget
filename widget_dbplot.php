@@ -49,27 +49,26 @@ $logTable = 'history';
 // Set the JSON header
 header("content-type: application/json");
 
-// Check if required POST values are set
-if (!isset($_POST['query']) && !isset($_POST['range'])) {
-    // If one of POST values is missing return Error
-    if (!isset($_POST['query']) || $_POST['query'] == "") {
-        returnError("Missing or empty query value in POST request");
-    }
-    if (!isset($_POST['range']) || $_POST['range'] == "" || !is_numeric($_POST['range'])) {
-        returnError("Missing, wrong or empty range value in POST request");
-    }
-} else {
-
-    // Set data from visu.js POST request
-    $query = $_POST['query'];
-    $range = $_POST['range'];
+// If one of POST values is missing return Error
+if (!isset($_POST['query']) || $_POST['query'] == "") {
+    returnError("Missing or empty query value in POST request");
 }
+if (!isset($_POST['timeRangeStart']) || $_POST['timeRangeStart'] == "" || !is_numeric($_POST['timeRangeStart'])) {
+    returnError("Missing, wrong or empty time range start value in POST request");
+}
+if (!isset($_POST['timeRangeEnd']) || $_POST['timeRangeEnd'] == "" || !is_numeric($_POST['timeRangeEnd'])) {
+    returnError("Missing, wrong or empty time range end value in POST request");
+}
+// Set data from visu.js POST request
+$query = $_POST['query'];
+$timeRangeStart = $_POST['timeRangeStart'];
+$timeRangeEnd = $_POST['timeRangeEnd'];
+$maxCount = (isset($_POST['maxRows'])) ? $_POST['maxRows'] : 300;
 
-// Decode JSON for query from POST Request
+// Decode JSON for query from POST Request and basic validation for request query
 $requestedDeviceReadings = json_decode($query);
-
-// Basic validation for request query
-if (!is_array($requestedDeviceReadings) && count($requestedDeviceReadings) == 0) returnError("plotOptions is no array, wrong formed or empty");
+if (!is_array($requestedDeviceReadings) && count($requestedDeviceReadings) == 0)
+    returnError("plotOptions is no array, wrong formed or empty");
 
 // Create new PDO Object for DB Connection
 if ($dbType == 'sqlite') {
@@ -86,9 +85,8 @@ foreach ($requestedDeviceReadings as $i => $deviceReading) {
     $plotArray = array();
 
     // Execute DB Query for device reading
-    $resultArray = dbQuery($deviceReading->device, $deviceReading->reading, $range, $db);
-    $stmt = $resultArray[0];
-    $numRowCount = $resultArray[1];
+    $resultArray = getData($deviceReading->device, $deviceReading->reading, $timeRangeStart, $timeRangeEnd, $maxCount, $db);
+    $stmt = $resultArray;
 
     // Loop through fetched data from db and push values to plot array
     for ($a = 0; $row = $stmt->fetch(PDO::FETCH_ASSOC); $a++) {
@@ -97,14 +95,8 @@ foreach ($requestedDeviceReadings as $i => $deviceReading) {
         $timestamp = strtotime($row['TIMESTAMP']) * 1000;
         $item = array($timestamp, floatval($row['VALUE']));
         array_push($plotArray, $item);
-
-        // Add a point with current timestamp and the last reading value so we don't get a gap in the plot
-        if ($a == $numRowCount) {
-            $item = array(mktime() * 1000, floatval($row['VALUE']));
-            array_push($plotArray, $item);
-        }
     }
-    
+
     // Fill return array with Options for plot
     foreach ($deviceReading->config as $key => $value) {
         $returnArray[$i][$key] = $value;
@@ -131,7 +123,7 @@ echo json_encode($returnArray);
  * **************************************** */
 
 // Query function to get data from FHEM dbLog Database
-function dbQuery($device, $reading, $timeRange, $db) {
+function getData($device, $reading, $timeRangeStart, $timeRangeEnd, $maxCount, $db) {
 
     global $timestampColumn;
     global $valueColumn;
@@ -139,38 +131,32 @@ function dbQuery($device, $reading, $timeRange, $db) {
     global $readingColumn;
     global $deviceColumn;
     global $logTable;
-    
+
+    $timeRangeStart = date('Y-m-d H:i:s', $timeRangeStart);
+    $timeRangeEnd = date('Y-m-d H:i:s', $timeRangeEnd);
+
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
-    $timeRange = (isset($_POST['lastUpdate'])) ? date("Y-m-d H:i:s", round($_POST['lastUpdate']/1000)) : date("Y-m-d H:i:s", mktime() - ($timeRange * 60));
-    $maxCount = (isset($_POST['maxRows'])) ? $_POST['maxRows'] : 300;
-    $dbQuery = 'SELECT ' . $timestampColumn . ', ' . $valueColumn . ', ' . $unitColumn . ' FROM ' . $logTable . ' WHERE ' . $deviceColumn . '=:device AND ' . $readingColumn . '=:reading AND ' . $timestampColumn . ' > :timeRange ORDER BY ' . $timestampColumn . ' DESC LIMIT 0,:count';
-    $countQuery = 'SELECT count(*) FROM ' . $logTable . ' WHERE ' . $deviceColumn . '=:device AND ' . $readingColumn . '=:reading AND ' . $timestampColumn . ' > :timeRange ORDER BY ' . $timestampColumn . ' DESC LIMIT 0,:count';
-    
-        
-    // Check for number of rows returned, if there are zero rows, return error with sql query
-    $rowCountQuery = executeDbQuery($db, $countQuery, $device, $reading, $timeRange, $maxCount);
-    $numRowCount = $rowCountQuery->fetchColumn();
-    if ($numRowCount  == 0 && !isset($_POST['lastUpdate'])) returnError('Zero rows returned for Device: ' . $device . ' with Reading: '. $reading);
+    $dbQuery = 'SELECT ' . $timestampColumn . ', ' . $valueColumn . ', ' . $unitColumn . ' FROM ' . $logTable . ' WHERE ' . $deviceColumn . '=:device AND ' . $readingColumn . '=:reading AND ' . $timestampColumn . ' BETWEEN :timeRangeStart AND :timeRangeEnd ORDER BY ' . $timestampColumn . ' DESC LIMIT 0,:count';
 
     // Execute query and return fetched rows
-    $fetchedRows = executeDbQuery($db, $dbQuery, $device, $reading, $timeRange, $maxCount);
-    return array($fetchedRows, $numRowCount);
+    $fetchedRows = executeDbQuery($db, $dbQuery, $device, $reading, $timeRangeStart, $timeRangeEnd, $maxCount);
+    return $fetchedRows;
 }
 
 // Execute DB query 
-function executeDbQuery($db, $query, $device, $reading, $timeRange, $maxCount) {
-    
+function executeDbQuery($db, $query, $device, $reading, $timeRangeStart, $timeRangeEnd, $maxCount) {
+
     try {
         $stmt = $db->prepare($query);
         $stmt->bindValue(':device', $device, PDO::PARAM_STR);
         $stmt->bindValue(':reading', $reading, PDO::PARAM_STR);
-        $stmt->bindValue(':timeRange', $timeRange);
+        $stmt->bindValue(':timeRangeStart', $timeRangeStart);
+        $stmt->bindValue(':timeRangeEnd', $timeRangeEnd);
         $stmt->bindValue(':count', $maxCount);
         $stmt->execute();
     } catch (PDOException $pe) {
         returnError($pe->getMessage());
-    }   
+    }
     return $stmt;
 }
 
