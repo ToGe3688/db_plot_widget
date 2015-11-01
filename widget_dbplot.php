@@ -94,13 +94,13 @@ foreach ($requestedDeviceReadings as $i => $deviceReading) {
     for ($a = 0; $row = $stmt->fetch(PDO::FETCH_ASSOC); $a++) {
 
         // Convert datetime from timestamp column to unix timestamp or set to current time if update request 
-        $timestamp = (isset($_POST['update'])) ? mktime() * 1000 : strtotime($row['TIMESTAMP']) * 1000;
+        $timestamp = strtotime($row['TIMESTAMP']) * 1000;
         $item = array($timestamp, floatval($row['VALUE']));
         array_push($plotArray, $item);
 
         // Add a point with current timestamp and the last reading value so we don't get a gap in the plot
         if ($a == $numRowCount) {
-            $item = array($timestamp, floatval($row['VALUE']));
+            $item = array(mktime() * 1000, floatval($row['VALUE']));
             array_push($plotArray, $item);
         }
     }
@@ -142,28 +142,16 @@ function dbQuery($device, $reading, $timeRange, $db) {
     
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
-    $timeRange = mktime() - ($timeRange * 60);
-    $timeRange = date("Y-m-d H:i:s", $timeRange);
-
-    // Check if request is initial request or update
-    if (isset($_POST['update'])) {
-
-        // Select only the last entry to get the update data for the plot
-        $maxCount = 1;
-        $dbQuery = 'SELECT ' . $timestampColumn . ', ' . $valueColumn . ', ' . $unitColumn . ' FROM ' . $logTable . ' WHERE ' . $deviceColumn . '=:device AND ' . $readingColumn . '=:reading ORDER BY ' . $timestampColumn . ' DESC LIMIT 0,:count';
-        $countQuery = 'SELECT count(*) FROM ' . $logTable . ' WHERE ' . $deviceColumn . '=:device AND ' . $readingColumn . '=:reading ORDER BY ' . $timestampColumn . ' DESC LIMIT 0,:count';
-    } else {
-
-        // Check if max_entry_count var is set in POST request, defaults to 300
-        $maxCount = (isset($_POST['maxRows'])) ? $_POST['maxRows'] : 300;
-        $dbQuery = 'SELECT ' . $timestampColumn . ', ' . $valueColumn . ', ' . $unitColumn . ' FROM ' . $logTable . ' WHERE ' . $deviceColumn . '=:device AND ' . $readingColumn . '=:reading AND ' . $timestampColumn . ' > :timeRange ORDER BY ' . $timestampColumn . ' DESC LIMIT 0,:count';
-        $countQuery = 'SELECT count(*) FROM ' . $logTable . ' WHERE ' . $deviceColumn . '=:device AND ' . $readingColumn . '=:reading AND ' . $timestampColumn . ' > :timeRange ORDER BY ' . $timestampColumn . ' DESC LIMIT 0,:count';
-    }
+    $timeRange = (isset($_POST['lastUpdate'])) ? date("Y-m-d H:i:s", round($_POST['lastUpdate']/1000)) : date("Y-m-d H:i:s", mktime() - ($timeRange * 60));
+    $maxCount = (isset($_POST['maxRows'])) ? $_POST['maxRows'] : 300;
+    $dbQuery = 'SELECT ' . $timestampColumn . ', ' . $valueColumn . ', ' . $unitColumn . ' FROM ' . $logTable . ' WHERE ' . $deviceColumn . '=:device AND ' . $readingColumn . '=:reading AND ' . $timestampColumn . ' > :timeRange ORDER BY ' . $timestampColumn . ' DESC LIMIT 0,:count';
+    $countQuery = 'SELECT count(*) FROM ' . $logTable . ' WHERE ' . $deviceColumn . '=:device AND ' . $readingColumn . '=:reading AND ' . $timestampColumn . ' > :timeRange ORDER BY ' . $timestampColumn . ' DESC LIMIT 0,:count';
     
+        
     // Check for number of rows returned, if there are zero rows, return error with sql query
     $rowCountQuery = executeDbQuery($db, $countQuery, $device, $reading, $timeRange, $maxCount);
     $numRowCount = $rowCountQuery->fetchColumn();
-    if ($numRowCount  == 0) returnError('Zero rows returned for Device: ' . $device . ' with Reading: '. $reading);
+    if ($numRowCount  == 0 && !isset($_POST['lastUpdate'])) returnError('Zero rows returned for Device: ' . $device . ' with Reading: '. $reading);
 
     // Execute query and return fetched rows
     $fetchedRows = executeDbQuery($db, $dbQuery, $device, $reading, $timeRange, $maxCount);
@@ -177,10 +165,7 @@ function executeDbQuery($db, $query, $device, $reading, $timeRange, $maxCount) {
         $stmt = $db->prepare($query);
         $stmt->bindValue(':device', $device, PDO::PARAM_STR);
         $stmt->bindValue(':reading', $reading, PDO::PARAM_STR);
-
-        // Check if request is initial request or update
-        if (!isset($_POST['update'])) $stmt->bindValue(':timeRange', $timeRange);
-
+        $stmt->bindValue(':timeRange', $timeRange);
         $stmt->bindValue(':count', $maxCount);
         $stmt->execute();
     } catch (PDOException $pe) {
