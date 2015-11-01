@@ -101,7 +101,7 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
                 $('#' + containerId + '-error-container').show().html('<h3>dbPlot Error (Initial)</h3>' + data.error);
             }
         });
-            
+        $(this).attr('data-last-update', Date.now());   
     },
     // Update event is called when a GAD changes
     'update': function (event, response) {
@@ -131,7 +131,8 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
                 $('#' + containerId + '-error-container').show().html('<h3>dbPlot Error (Update)</h3>' + data.error);
             }
         });
-
+        
+        $(this).attr('data-last-update', Date.now()); 
         // Fix for display problems with too wide Chart container
         $(window).resize();
     }
