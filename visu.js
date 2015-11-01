@@ -114,6 +114,7 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
         var postData = {
             query: $(this).attr('data-query'),
             range: $(this).attr('data-range'),
+            lastUpdate: $(this).attr('data-last-update'),
             update: true
         };
 
