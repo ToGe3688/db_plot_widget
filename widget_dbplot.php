@@ -52,23 +52,27 @@ header("content-type: application/json");
 // If one of POST values is missing return Error
 if (!isset($_POST['query']) || $_POST['query'] == "") {
     returnError("Missing or empty query value in POST request");
+} else {
+    $query = $_POST['query'];
 }
 if (!isset($_POST['timeRangeStart']) || $_POST['timeRangeStart'] == "" || !is_numeric($_POST['timeRangeStart'])) {
     returnError("Missing, wrong or empty time range start value in POST request");
+} else {
+    $timestampStart = $_POST['timeRangeStart'];
 }
 if (!isset($_POST['timeRangeEnd']) || $_POST['timeRangeEnd'] == "" || !is_numeric($_POST['timeRangeEnd'])) {
     returnError("Missing, wrong or empty time range end value in POST request");
+} else {
+    $timestampEnd = $_POST['timeRangeEnd'];
 }
-// Set data from visu.js POST request
-$query = $_POST['query'];
-$timeRangeStart = $_POST['timeRangeStart'];
-$timeRangeEnd = $_POST['timeRangeEnd'];
+
 $maxCount = (isset($_POST['maxRows'])) ? $_POST['maxRows'] : 300;
 
 // Decode JSON for query from POST Request and basic validation for request query
 $requestedDeviceReadings = json_decode($query);
-if (!is_array($requestedDeviceReadings) && count($requestedDeviceReadings) == 0)
+if (!is_array($requestedDeviceReadings) && count($requestedDeviceReadings) == 0) {
     returnError("plotOptions is no array, wrong formed or empty");
+}
 
 // Create new PDO Object for DB Connection
 if ($dbType == 'sqlite') {
@@ -85,7 +89,7 @@ foreach ($requestedDeviceReadings as $i => $deviceReading) {
     $plotArray = array();
 
     // Execute DB Query for device reading
-    $resultArray = getData($deviceReading->device, $deviceReading->reading, $timeRangeStart, $timeRangeEnd, $maxCount, $db);
+    $resultArray = getData($deviceReading->device, $deviceReading->reading, $timestampStart, $timestampEnd, $maxCount, $db);
     $stmt = $resultArray;
 
     // Loop through fetched data from db and push values to plot array
@@ -123,7 +127,7 @@ echo json_encode($returnArray);
  * **************************************** */
 
 // Query function to get data from FHEM dbLog Database
-function getData($device, $reading, $timeRangeStart, $timeRangeEnd, $maxCount, $db) {
+function getData($device, $reading, $timestampStart, $timestampEnd, $maxCount, $db) {
 
     global $timestampColumn;
     global $valueColumn;
@@ -132,26 +136,26 @@ function getData($device, $reading, $timeRangeStart, $timeRangeEnd, $maxCount, $
     global $deviceColumn;
     global $logTable;
 
-    $timeRangeStart = date('Y-m-d H:i:s', $timeRangeStart);
-    $timeRangeEnd = date('Y-m-d H:i:s', $timeRangeEnd);
+    $datetimeStart = date('Y-m-d H:i:s', $timestampStart);
+    $datetimeEnd = date('Y-m-d H:i:s', $timestampEnd);
 
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $dbQuery = 'SELECT ' . $timestampColumn . ', ' . $valueColumn . ', ' . $unitColumn . ' FROM ' . $logTable . ' WHERE ' . $deviceColumn . '=:device AND ' . $readingColumn . '=:reading AND ' . $timestampColumn . ' BETWEEN :timeRangeStart AND :timeRangeEnd ORDER BY ' . $timestampColumn . ' DESC LIMIT 0,:count';
 
     // Execute query and return fetched rows
-    $fetchedRows = executeDbQuery($db, $dbQuery, $device, $reading, $timeRangeStart, $timeRangeEnd, $maxCount);
+    $fetchedRows = executeDbQuery($db, $dbQuery, $device, $reading, $datetimeStart, $datetimeEnd, $maxCount);
     return $fetchedRows;
 }
 
 // Execute DB query 
-function executeDbQuery($db, $query, $device, $reading, $timeRangeStart, $timeRangeEnd, $maxCount) {
+function executeDbQuery($db, $query, $device, $reading, $timestampStart, $timestampEnd, $maxCount) {
 
     try {
         $stmt = $db->prepare($query);
         $stmt->bindValue(':device', $device, PDO::PARAM_STR);
         $stmt->bindValue(':reading', $reading, PDO::PARAM_STR);
-        $stmt->bindValue(':timeRangeStart', $timeRangeStart);
-        $stmt->bindValue(':timeRangeEnd', $timeRangeEnd);
+        $stmt->bindValue(':timeRangeStart', $timestampStart);
+        $stmt->bindValue(':timeRangeEnd', $timestampEnd);
         $stmt->bindValue(':count', $maxCount);
         $stmt->execute();
     } catch (PDOException $pe) {
