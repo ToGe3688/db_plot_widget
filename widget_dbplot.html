@@ -41,5 +41,6 @@ data-item="{% for key,val in plotOptions %}{{ val.update_trigger_gad }}{% if (lo
 data-query="{{ plotOptions|json_encode() }}"
 data-y-axis-options="{{ yAxisOptions|json_encode() }}"
 data-legend-options="{{ legendOptions|json_encode() }}"
+data-last-update=""
 style="height:{{ height|default(250) }}px;"></div>
 {% endmacro %}
