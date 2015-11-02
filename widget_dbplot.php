@@ -78,6 +78,7 @@ if (!is_array($requestedDeviceReadings) && count($requestedDeviceReadings) == 0)
 if ($dbType == 'sqlite') {
     $db = new PDO('sqlite:' . $dbPath);
 } elseif ($dbType == 'mysql') {
+    $db->setAttribute( PDO::ATTR_EMULATE_PREPARES, false );
     $db = new PDO('mysql:host=' . $host . ';' . $database, $mysql_username, $mysql_password);
 }
 
