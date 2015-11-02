@@ -124,7 +124,7 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
                 for (i = 0; i < data.length; i++) {
                     if (data[i].data.length !== 0) {
                         for (a = 0; a < data[i].data.length; a++) {
-                            chart.series[i].addPoint(data[i].data[a], true);
+                            chart.series[i].addPoint(data[i].data[a], false, false);
                         }
                         $('#' + containerId ).attr('data-last-update', Date.now()); 
                     }
