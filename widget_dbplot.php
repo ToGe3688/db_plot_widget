@@ -75,6 +75,10 @@ if (!is_array($requestedDeviceReadings) && count($requestedDeviceReadings) == 0)
 if ($dbType == 'sqlite') {
     $db = new PDO('sqlite:' . $dbPath);
 } elseif ($dbType == 'mysql') {
+   // [dbPlot.widget]: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''1'' at line 1
+   // Fix this ERROR:
+    $db->setAttribute( PDO::ATTR_EMULATE_PREPARES, false );
+   // END FIX  
     $db = new PDO('mysql:host=' . $host . ';' . $database, $mysql_username, $mysql_password);
 }
 
