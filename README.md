@@ -11,9 +11,12 @@ This widget makes it possible to add fancy zoomable live updated line plots from
 ## Install
 NOTE: The widget is based on a php script which will fetch the required data for the plot from a SQLite or MySQL database. The connection to the database is made via PDO. So before you start make sure to install the required php db extensions if they are not installed already.
 
-1. Copy widget_dbplot.php and widget_dbplot.html files to SmartVISU widget folder (/widgets)
-2. Edit the widget_dbplot.php file and set your database connection settings.
-3. Copy visu.js to the folder of your SmartVISU page (/pages/myPage) or if you already have a visu.js file just append the content to the file.
+1. 	Copy widget_dbplot.php file to SmartVISU widget folder (/widgets)
+2. 	Copy and widget_dbplot.html file to your SmartVISU page ( /pages/MyPage )
+3. 	Edit the widget_dbplot.php file and set your database connection settings.
+4. 	Copy visu.js to the folder of your SmartVISU page (/pages/myPage) or if you already have a visu.js file just append the content to the file.
+5. 	Edit the .html-file in your SmartVISU page folder where the widget will be displayed
+	- put {% import "widget_dbplot.html" as dbPlot %} right before your widgetCode
 
 ## Creating Plots
 ### Accepted parameters:
