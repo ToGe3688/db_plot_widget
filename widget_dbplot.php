@@ -5,10 +5,10 @@
 // SmartVISU widget for database plots with highcharts
 // (c) Tobias Geier 2015
 // 
-// Version: 0.2
+// Version: 0.3
 // License: GNU General Public License v2.0
 // 
-// Manual: 
+// Manual: https://github.com/ToGe3688/db_plot_widget
 // 
 // ----------------------------------------------------------
 
