@@ -30,6 +30,7 @@ $host = 'localhost';
 $mysql_username = '';
 $mysql_password = '';
 $database = '';
+$port = 3306;
 
 /* * ****************************************
   It is not needed to change any settings below if you use this widget with FHEM DbLog
@@ -78,8 +79,8 @@ if (!is_array($requestedDeviceReadings) && count($requestedDeviceReadings) == 0)
 if ($dbType == 'sqlite') {
     $db = new PDO('sqlite:' . $dbPath);
 } elseif ($dbType == 'mysql') {
-    $db = new PDO('mysql:host=' . $host . ';' . $database, $mysql_username, $mysql_password);
     $db->setAttribute( PDO::ATTR_EMULATE_PREPARES, false );
+    $db = new PDO('mysql:host=' . $host . '; port='. $port .';dbname=' . $database, $mysql_username, $mysql_password);
 }
 
 
