@@ -16,7 +16,7 @@
 /* * ****************************************
  * *****************CONFIG*******************
  * **************************************** */
-require_once('widget_dbplot.config.php');
+require_once(dirname('__FILE__')."/widget_dbplot.config.php");
 
 /* * ****************************************
   It is not needed to change any settings below if you use this widget with FHEM DbLog
