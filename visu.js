@@ -114,7 +114,8 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
         // Get Query for POST-Request
         var postData = {
             query: $(this).attr('data-query'),
-            timeRangeStart: Math.round($(this).attr('data-last-update')/1000),
+            maxRows: $(this).attr('data-max-rows'),
+            timeRangeStart: Math.round((Date.now()/1000)-($(this).attr('data-range')*60)),
             timeRangeEnd: Math.round(Date.now()/1000)
         };
 
@@ -123,9 +124,7 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
             if (!data.error) {
                 for (i = 0; i < data.length; i++) {
                     if (data[i].data.length !== 0) {
-                        for (a = 0; a < data[i].data.length; a++) {
-                            chart.series[i].addPoint(data[i].data[a], false, false);
-                        }
+                        chart.series[i].setData(data[i].data, false);
                         $('#' + containerId ).attr('data-last-update', Date.now()); 
                     }
                 }
