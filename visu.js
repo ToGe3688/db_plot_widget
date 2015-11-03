@@ -3,10 +3,10 @@
 // SmartVISU widget for database plots with highcharts
 // (c) Tobias Geier 2015
 // 
-// Version: 0.2
+// Version: 0.3
 // License: GNU General Public License v2.0
 // 
-// Manual: 
+// Manual: https://github.com/ToGe3688/db_plot_widget
 // 
 // ----------------------------------------------------------
 $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
@@ -74,10 +74,10 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
                 formatter: function () {
                     if (this.series.options.unit !== null) {
                         // If unit is set in the series data use this
-                        return this.series.name + ' <b>' + this.y + ' ' + this.series.options.unit + '</b>';
+                        return this.series.name + ' <br/>' + this.y + ' ' + this.series.options.unit + '</b>';
                     } else {
                         // If unit is not set use the unit value from data fields
-                        return this.series.name + ' <b>' + this.y + ' ' + unit + '</b>';
+                        return this.series.name + ' <br/>' + this.y + ' ' + unit + '</b>';
                     }
                 }
             }
@@ -87,7 +87,8 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
         var postData = {
             query: $(this).attr('data-query'),
             maxRows: $(this).attr('data-max-rows'),
-            range: $(this).attr('data-range')
+            timeRangeStart: Math.round((Date.now()/1000)-($(this).attr('data-range')*60)),
+            timeRangeEnd: Math.round(Date.now()/1000)
         };
 
         // Make POST-Request to get the data series for the plot
@@ -101,7 +102,7 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
                 $('#' + containerId + '-error-container').show().html('<h3>dbPlot Error (Initial)</h3>' + data.error);
             }
         });
-            
+        $(this).attr('data-last-update', Date.now());   
     },
     // Update event is called when a GAD changes
     'update': function (event, response) {
@@ -113,16 +114,21 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
         // Get Query for POST-Request
         var postData = {
             query: $(this).attr('data-query'),
-            range: $(this).attr('data-range'),
-            update: true
+            maxRows: $(this).attr('data-max-rows'),
+            timeRangeStart: Math.round((Date.now()/1000)-($(this).attr('data-range')*60)),
+            timeRangeEnd: Math.round(Date.now()/1000)
         };
 
         // Make POST-Request and update the Plot
         $.post("widgets/widget_dbplot.php", postData).done(function (data) {
             if (!data.error) {
                 for (i = 0; i < data.length; i++) {
-                    chart.series[i].addPoint(data[i].data[0], false);
+                    if (data[i].data.length !== 0) {
+                        chart.series[i].setData(data[i].data, false);
+                        $('#' + containerId ).attr('data-last-update', Date.now()); 
+                    }
                 }
+                
                 // Redraw chart
                 chart.redraw();
             } else {
@@ -131,7 +137,8 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
                 $('#' + containerId + '-error-container').show().html('<h3>dbPlot Error (Update)</h3>' + data.error);
             }
         });
-
+        
+        
         // Fix for display problems with too wide Chart container
         $(window).resize();
     }
