@@ -176,12 +176,21 @@ This will render a chart with two lineplots and two corresponding y-Axis.
 		}
 	}
 ]%}
-{% set legendOptions = 
-	{
-		align: 'left',
-		verticalAlign: 'bottom',
-		borderWidth: 1
-	}
+{% set legendOptions = {
+			align: 'right',
+            verticalAlign: 'bottom',
+			layout: 'vertical',
+			backgroundColor: '#333333',
+			x: -90,
+			y: -30,
+			title: {
+				text: 'Legende',
+				style: {
+					color:'#fff'
+				}
+			},
+            borderWidth: 1
+    }
 %}
 {{ dbPlot.linePlot('HeatingPlot', 'Temperatures', '', '', 'Temperaturen', '°C', plotOptions, '', legendOptions, 300) }}
 ```
