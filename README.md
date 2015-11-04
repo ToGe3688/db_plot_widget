@@ -177,14 +177,12 @@ This will render a chart with two lineplots and two corresponding y-Axis.
 	}
 ]%}
 {% set legendOptions = 
- [
 	{
-		'align': 'left',
-		'verticalAlign': 'bottom',
-		'borderWidth': 1
-		}
+		align: 'left',
+		verticalAlign: 'bottom',
+		borderWidth: 1
 	}
-]%}
+%}
 {{ dbPlot.linePlot('HeatingPlot', 'Temperatures', '', '', 'Temperaturen', '°C', plotOptions, '', legendOptions, 300) }}
 ```
 This will render a line plot with a custom legend.
