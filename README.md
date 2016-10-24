@@ -1,25 +1,24 @@
 # SmartVISU Database Plot Widget
 A SmartVISU widget for database plots with highcharts.
 
-forked from (C) Tobias Geier 2015
-Stand: v0.2
-
+forked from: (C) Tobias Geier 2015
+Stand: v0.3
 
 ![alt text](http://i.imgur.com/RFT4CrR.png "SmartVISU Database Lineplots")
 
 This widget makes it possible to add fancy zoomable live updated line plots from the FHEM DbLog module (or any other mysql or sqlite log table) to the SmartVISU Frontend. 
 
+## Requirements
+- smartVISU >= 2.7 installed
+- Webserver with php5 >= 5.2.4
+	- php5-<db>-module installed for database-Access (<db> is depending on used database e.g. mysql, sqlite ...)
+	
 ## Install
 NOTE: The widget is based on a php script which will fetch the required data for the plot from a SQLite or MySQL database. The connection to the database is made via PDO. So before you start make sure to install the required php db extensions if they are not installed already.
-1.	xss
-2.	
 
-1. 	Copy widget_dbplot.php file to SmartVISU widget folder (/widgets)
-2. 	Copy and widget_dbplot.html file to your SmartVISU page ( /pages/MyPage )
-3. 	Edit the widget_dbplot.php file and set your database connection settings.
-4. 	Copy visu.js to the folder of your SmartVISU page (/pages/myPage) or if you already have a visu.js file just append the content to the file.
-5. 	Edit the .html-file in your SmartVISU page folder where the widget will be displayed
-	- put {% import "widget_dbplot.html" as dbPlot %} right before your widgetCode
+1. Copy widget_dbplot.php and widget_dbplot.html files to SmartVISU widget folder (/widgets)
+2. Edit the widget_dbplot.php file and set your database connection settings.
+3. Copy visu.js to the folder of your SmartVISU page (/pages/myPage) or if you already have a visu.js file just append the content to the file.
 
 ## Creating Plots
 ### Accepted parameters:
@@ -182,15 +181,22 @@ This will render a chart with two lineplots and two corresponding y-Axis.
 		}
 	}
 ]%}
-{% set legendOptions = 
- [
-	{
-		'align': 'left',
-		'verticalAlign': 'bottom',
-		'borderWidth': 1
-		}
-	}
-]%}
+{% set legendOptions = {
+			align: 'right',
+            verticalAlign: 'bottom',
+			layout: 'vertical',
+			backgroundColor: '#333333',
+			x: -90,
+			y: -30,
+			title: {
+				text: 'Legende',
+				style: {
+					color:'#fff'
+				}
+			},
+            borderWidth: 1
+    }
+%}
 {{ dbPlot.linePlot('HeatingPlot', 'Temperatures', '', '', 'Temperaturen', '°C', plotOptions, '', legendOptions, 300) }}
 ```
 This will render a line plot with a custom legend.
