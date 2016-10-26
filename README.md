@@ -8,6 +8,11 @@ Stand: v0.3
 
 This widget makes it possible to add fancy zoomable live updated line plots from the FHEM DbLog module (or any other mysql or sqlite log table) to the SmartVISU Frontend. 
 
+## Requirements
+- smartVISU >= 2.7 installed
+- Webserver with php5 >= 5.2.4
+	- php5-<db>-module installed for database-Access (<db> is depending on used database e.g. mysql, sqlite ...)
+	
 ## Install
 NOTE: The widget is based on a php script which will fetch the required data for the plot from a SQLite or MySQL database. The connection to the database is made via PDO. So before you start make sure to install the required php db extensions if they are not installed already.
 

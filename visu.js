@@ -74,10 +74,10 @@ $(document).delegate('div[data-widget="dbPlot.linePlot"]', {
                 formatter: function () {
                     if (this.series.options.unit !== null) {
                         // If unit is set in the series data use this
-                        return this.series.name + ' <b>' + this.y + ' ' + this.series.options.unit + '</b>';
+                        return this.series.name + ' <br/>' + this.y + ' ' + this.series.options.unit + '</b>';
                     } else {
                         // If unit is not set use the unit value from data fields
-                        return this.series.name + ' <b>' + this.y + ' ' + unit + '</b>';
+                        return this.series.name + ' <br/>' + this.y + ' ' + unit + '</b>';
                     }
                 }
             }

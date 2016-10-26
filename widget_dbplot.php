@@ -13,24 +13,7 @@
 // ----------------------------------------------------------
 
 
-/* * ****************************************
- * *****************CONFIG*******************
- * **************************************** */
-
-// Edit the dbConnect to match your DB Log settings of fhem
-// For SQLite define the path to your db in your filesystem
-// DB Type, use 'sqlite' or 'mysql'
-$dbType = 'sqlite';
-
-// SQLite
-$dbPath = '/opt/fhem/fhem.db';
-
-// MySQL
-$host = 'localhost';
-$mysql_username = '';
-$mysql_password = '';
-$database = '';
-$port = 3306;
+require_once(dirname('__FILE__')."/widget_dbplot.config.php");
 
 /* * ****************************************
   It is not needed to change any settings below if you use this widget with FHEM DbLog
